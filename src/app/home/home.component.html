@@ -1,0 +1,73 @@
+<div class="container py-4">
+    <div class="row text-center">
+        <div class="col-6">
+            <button mat-raised-button color="accent" (click)="openDialog()">CREATE NEW TODO</button>
+        </div>
+        <div class="col-6">
+            <mat-form-field>
+                <mat-label>Select a status</mat-label>
+                <mat-select (selectionChange)="filterChanged($event)">
+                    <mat-option>All</mat-option>
+                    <mat-option value="COMPLETED">Completed</mat-option>
+                    <mat-option value="WIP">In Progress</mat-option>
+                    <mat-option value="OPEN">Open</mat-option>
+                    <mat-option value="ARCHIVE">Archive</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-6 offset-3">
+            <mat-progress-bar mode="determinate"
+                [ngStyle]="{ 'width.%': getCompletionPercentage() }"></mat-progress-bar>
+            <ng-container *ngFor="let t of filteredTodos; let i=index">
+                <mat-card class="my-3">
+                    <div class="row">
+                        <div class="col-10">
+                            <mat-card-title class="p-2 text-dark">{{t.title}}</mat-card-title>
+                        </div>
+                        <div class="col-2 mt-3">
+                            <div *ngIf="t.status !== 'COMPLETED' && t.status !== 'ARCHIVE'; else elseBlock">
+                                <mat-card-subtitle>Todo will disapear after : </mat-card-subtitle>
+                                <h3>{{ t.timer }}</h3>
+                                <mat-spinner mode="determinate" style="width: 30px; height: 30px;"
+                                    [value]="(t.timer/300)*100"></mat-spinner>
+                            </div>
+                            <ng-template #elseBlock>
+                                <div *ngIf="t.status === 'ARCHIVE'; else newElseBlock">
+                                    <mat-icon>archive</mat-icon>
+                                </div>
+                                <ng-template #newElseBlock>
+                                    <mat-icon>check_circle</mat-icon>
+                                </ng-template>
+                            </ng-template>
+                        </div>
+                    </div>
+                    <mat-card-content class="p-2 text-primary d-flex flex-column">
+                        <div>
+                            <p class="lead">{{t.description}}</p>
+                        </div>
+                        <div class="d-flex align-items-center my-3">
+                            <div>
+                                <mat-form-field>
+                                    <mat-label>Select a status</mat-label>
+                                    <mat-select [(value)]="t.status" (selectionChange)="statusChanged($event, t.id, i)">
+                                        <mat-option [disabled]="!isAdmin" value="COMPLETED">Completed</mat-option>
+                                        <mat-option value="WIP">In Progress</mat-option>
+                                        <mat-option value="OPEN">Open</mat-option>
+                                        <mat-option [disabled]="!isAdmin" value="ARCHIVE">Archive</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <span class="spacer"></span>
+                            <mat-icon color="warn" style="cursor:pointer;" (click)="delete(t.id)">delete</mat-icon>
+                        </div>
+
+                    </mat-card-content>
+                </mat-card>
+            </ng-container>
+
+        </div>
+    </div>
+</div>
